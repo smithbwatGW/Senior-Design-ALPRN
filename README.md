@@ -12,9 +12,11 @@ Once you have a Raspberry Pi with a working version of Ubuntu installed, make su
 ### Install OpenALPR
 https://github.com/openalpr/openalpr/wiki/Compilation-instructions-(Ubuntu-Linux)
 ### For the GUI, you will need to install TKInter: 
-sudo apt install python python-tk
-### Clone this project:
-git clone https://github.com/smithbwatGW/Senior-Design-ALPRN.git
+`sudo apt install python python-tk`
+### Get the script:
+- Clone the entire repository:
+  ```git clone https://github.com/smithbwatGW/Senior-Design-ALPRN.git```
+- Or, just grab ALPRN.py
 
 Note: This python file can be run as a script, if the first line points properly to your python interpreter.
 ### To run it on startup

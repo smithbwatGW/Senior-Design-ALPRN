@@ -1,5 +1,5 @@
 # Automatic License Plate Reader and Notification System Instruction Manual
-Zach Liebold, Blake Smith, Irene Morchio
+Zach Liebold, Irene Morchio, Blake Smith
 
 This guide is an overview on how to operate the ALPR and Notification System device, as well as how to install any necessary software packages onto your Raspberry Pi. 
 

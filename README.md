@@ -9,18 +9,18 @@ In order to work properly, the Raspberry Pi needs a version of Ubuntu Linux inst
 
 Once you have a Raspberry Pi with a working version of Ubuntu installed, make sure you have sudo privileges. The following steps will install the OpenALPR software; can be copy and pasted into a script or executed from the command line: 
 
-# Install OpenALPR
+### Install OpenALPR
 https://github.com/openalpr/openalpr/wiki/Compilation-instructions-(Ubuntu-Linux)
-# For the GUI, you will need to install TKInter: 
+### For the GUI, you will need to install TKInter: 
 sudo apt install python python-tk
-# Clone this project:
+### Clone this project:
 git clone https://github.com/smithbwatGW/Senior-Design-ALPRN.git
 
 Note: This python file can be run as a script, if the first line points properly to your python interpreter.
-# To run it on startup
+### To run it on startup
 To set up the GUI and ALPR service to startup on launch, you will need to do the following to your startup menus: 
-Navigate to System>Control Center>Personal>Startup Applications
-Add a new Startup Program
-Name the Program. We recommend using something like GUI or ALPRN to keep it easy to read
-Type the execution line. This should be: ‘python /path/to/ALPRN/script.py’ 
-Now your services should start automatically upon startup of your machine!
+1. Navigate to System>Control Center>Personal>Startup Applications
+2. Add a new Startup Program
+3. Name the Program. We recommend using something like GUI or ALPRN to keep it easy to read
+4. Type the execution line. This should be: ‘python /path/to/ALPRN/script.py’ 
+5. Now your services should start automatically upon startup of your machine!

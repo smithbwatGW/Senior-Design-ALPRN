@@ -3,7 +3,7 @@ import Tkinter
 import threading
 from threading import Thread
 from openalpr import Alpr
-#from picamera import PiCamera
+from picamera import PiCamera
 import time
 import sys
 import csv
@@ -193,7 +193,7 @@ def main():
                 HeadsUp.set("Match found!\nLicense plate: "+dBase[foundindex[0]][fields[0]]+" from "+dBase[foundindex[0]][fields[1]]+"\nReason for interest:"+platestatus[int(dBase[foundindex[0]][fields[2]])]+"\nMake,Model: "+dBase[foundindex[0]][fields[4]]+" "+dBase[foundindex[0]][fields[5]]+"\nColor: "+dBase[foundindex[0]][fields[3]])
                 notes.place(relx=0.2,rely=0.2,relwidth=0.6,relheight=0.5)
                 alprwake.release()
-            if(foundmatch[0] == 7 or foundmatch[0] == 8):
+            if(foundmatch[0] == 7):
                 break
             # These two lines are what update the display
             window.update_idletasks()

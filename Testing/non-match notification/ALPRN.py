@@ -4,6 +4,8 @@ import threading
 from threading import Thread
 from openalpr import Alpr
 #from picamera import PiCamera
+import time
+#from datetime import datetime
 import sys
 import csv
 
@@ -11,7 +13,9 @@ import csv
 screenblink = [0]
 foundmatch = [0]
 foundindex = [0]
+foundplate = ['None']
 alprwake = threading.Condition()
+lastseenlock = threading.Condition()
 
 # Database and its field references
 dBase = []
@@ -61,6 +65,9 @@ def Alpr_run():
                     sys.exit()
                 for candidate in plate['candidates']:
                     if candidate['confidence'] >= 85:
+                        lastseenlock.acquire()
+                        foundplate[0] = time.strftime("%X",time.localtime(time.time()))+' Plate: '+candidate['plate']
+                        lastseenlock.release()
                         # hit_index will be used by the gui to fill in the desired info for display when a match occurs
                         # May or may not be useful if separate processes between gui and this
                         hit_index=0
@@ -89,6 +96,10 @@ def Alpr_run():
         alpr.unload()
         #print "Thread exitted"
         sys.exit()
+
+def ch_arr_variable(var,elem,value):
+    var[elem] = value;
+
 def ch_color(blinky):
     current_color = blinky.cget("background")
     next_color = "white" if current_color == "black" else "black"
@@ -133,6 +144,9 @@ def main():
 
         HeadsUp = Tkinter.StringVar()
         HeadsUp.set("This shouldn't be visible")
+        LastSeenUpdate = [1]
+        LastSeen = Tkinter.StringVar()
+        HeadsUp.set("This shouldn't be visible")
     
         # Initializes the database from file
         dBase_fill()
@@ -146,6 +160,7 @@ def main():
         acknowledge = Tkinter.Button (window,pady=1,padx=5,text="Acknowledge",command=lambda: acknowledge_buttoncall(window),bg="yellow")
         exitbutton = Tkinter.Button (window,pady=1,padx=5,text="Exit",command=lambda:exit_buttoncall(thread,window),bg="red")
         notes = Tkinter.Label (window,bg="white",textvariable=HeadsUp)
+        lastseen = Tkinter.Label (window,bg="white",textvariable=LastSeen)
 
         # Variables used to manipulate multiple button placements and sizes
         bottom_row_height = 0.15
@@ -156,7 +171,8 @@ def main():
         exitbutton.place(relheight=bottom_row_height,relwidth=0.1,relx=0,rely=1-bottom_row_height)
         acknowledge.place(relheight=bottom_row_height,relwidth=bottom_row_width,relx=1-(2*bottom_row_width),rely=1-bottom_row_height)
         clearbutton.place(relheight=bottom_row_height,relwidth=bottom_row_width,relx=1-bottom_row_width,rely=1-bottom_row_height)
-
+        lastseen.place(relheight=0.1,relwidth=0.6,relx=0.39,rely=0.01)
+        
         change_color(alive,window,1500,[1])
         change_color(window,window,750,screenblink)
         # Starts the worker thread
@@ -164,6 +180,12 @@ def main():
     
         # This is the gui loop
         while True:
+            if(LastSeenUpdate[0] == 1):
+                lastseenlock.acquire()
+                LastSeen.set(foundplate[0])
+                lastseenlock.release()
+                LastSeenUpdate[0] = 0
+                window.after(5000, ch_arr_variable, LastSeenUpdate,0,1)
             if(foundmatch[0] == 1):
                 alprwake.acquire()
                 foundmatch[0] = 0

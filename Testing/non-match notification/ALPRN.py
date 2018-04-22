@@ -158,8 +158,8 @@ def main():
         clearbutton = Tkinter.Button (window,pady=1,padx=5,text="Clear",command=lambda:clear_buttoncall(window,notes),bg="green")
         acknowledge = Tkinter.Button (window,pady=1,padx=5,text="Acknowledge",command=lambda: acknowledge_buttoncall(window),bg="yellow")
         exitbutton = Tkinter.Button (window,pady=1,padx=5,text="Exit",command=lambda:exit_buttoncall(thread,window),bg="red")
-        notes = Tkinter.Label (window,bg="white",textvariable=HeadsUp)
-        lastseen = Tkinter.Label (window,bg="white",textvariable=LastSeen)
+        notes = Tkinter.Label (window,bg="white",textvariable=HeadsUp,font=("Courier",20))
+        lastseen = Tkinter.Label (window,bg="white",textvariable=LastSeen,font=("Courier",16))
 
         # Variables used to manipulate multiple button placements and sizes
         bottom_row_height = 0.15

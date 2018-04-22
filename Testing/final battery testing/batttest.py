@@ -76,9 +76,9 @@ try:
 			#shutdown core loading program
 			closeout('Thermal')
 			break
-	# Sleep this process for sl_time(set towards the top) seconds until recording a new value
-	# Research suggests this may result in around 10-15ms inaccuracy in wait time
-	time.sleep(sl_time)
+		# Sleep this process for sl_time(set towards the top) seconds until recording a new value
+		# Research suggests this may result in around 10-15ms inaccuracy in wait time
+		time.sleep(sl_time)
 	print "\nTest Concluded"
 except KeyboardInterrupt:
 	closeout('Keyboard')

@@ -13,3 +13,5 @@ This folder includes various incremental integrations throughout the project
 This folder has some files used in probing effectiveness of OpenALPR under differing conditions
 ### Threading work
 This folder includes files that were involved in working up to the more or less final product
+### Non-match notification
+This folder has work towards incorporating a notification for plates that aren't in the database

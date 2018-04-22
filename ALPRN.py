@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/python
 import Tkinter
 import threading
 from threading import Thread
@@ -13,10 +13,10 @@ foundmatch = [0]
 foundindex = [0]
 alprwake = threading.Condition()
 
-# Database and is field references
+# Database and its field references
 dBase = []
 # XXX: If new fields to be added to the database, add here
-fields = ['plate', 'state', 'stolen', 'make', 'model', 'color']
+fields = ['plate', 'state', 'ROI','color','make','model']
 platestatus = ['Unknown','Stolen','Missing Person','Amber alert']
 
 
@@ -27,7 +27,7 @@ def dBase_fill():
             # This implementation allows easier legibility when referencing entry values
             dBase.append({fields[0]:row[fields[0]],fields[1]:row[fields[1]],fields[2]:row[fields[2]],fields[3]:row[fields[3]],fields[4]:row[fields[4]],fields[5]:row[fields[5]]})
 
-    # Trims the first two entries, which aren't database fields
+    # Trims the first two entries, may or may not be necessary depending on file
     for i in range(2):
         dBase.remove(dBase[0])
         
@@ -46,7 +46,7 @@ def Alpr_run():
             
     try:
         while True:
-            camera.capture('/home/zib/plates/image.jpg')
+            camera.capture('/home/zib/plates/image.jpg',format='jpeg',quality=100)
             results = alpr.recognize_file("/home/zib/plates/image.jpg")
             if foundmatch[0] == 8:
                     alpr.unload()
@@ -78,7 +78,6 @@ def Alpr_run():
                         alpr.unload()
                         #print "Thead exitted"
                         sys.exit()
-                        
         alpr.unload()
         #print "Thead exitted"
     except KeyboardInterrupt:
@@ -88,7 +87,6 @@ def Alpr_run():
         alpr.unload()
         #print "Thread exitted"
         sys.exit()
-        
 def ch_color(blinky):
     current_color = blinky.cget("background")
     next_color = "white" if current_color == "black" else "black"
@@ -96,7 +94,7 @@ def ch_color(blinky):
 
 def change_color(blinky,window,delay,enable):
     if (enable[0] == 1):
-        ch_color(blinky)		
+        ch_color(blinky)        
     window.after(delay, change_color, blinky, window, delay, enable)
 
 def clear_buttoncall(window,notes):
@@ -128,7 +126,7 @@ def exit_buttoncall(thread,window):
 def main():
     try:
         # Instantiates the window then makes it fullscreen
-        window = Tkinter.Tk()
+        window = Tkinter.Tk(className=' ALPRN')
         window.attributes("-fullscreen",True)
 
         HeadsUp = Tkinter.StringVar()
@@ -169,8 +167,8 @@ def main():
                 foundmatch[0] = 0
                 screenblink[0] = 1
                 # XXX: Additional database fields must be fleshed out here
-                HeadsUp.set("Match found!\nLicense plate: "+dBase[foundindex[0]][fields[0]]+' '+dBase[foundindex[0]][fields[1]]+"\nReason for interest:"+platestatus[int(dBase[foundindex[0]][fields[2]])]+"\nMake&Model: "+dBase[foundindex[0]][fields[3]]+' '+dBase[foundindex[0]][fields[4]]+"\nColor: "+dBase[foundindex[0]][fields[5]])
-                notes.place(relx=0.1,rely=0.1,relwidth=0.8,relheight=0.7)
+                HeadsUp.set("Match found!\nLicense plate: "+dBase[foundindex[0]][fields[0]]+" "+dBase[foundindex[0]][fields[1]]+"\nReason for interest:"+platestatus[int(dBase[foundindex[0]][fields[2]])]+"\nMake,Model: "+dBase[foundindex[0]][fields[4]]+" "+dBase[foundindex[0]][fields[5]]+"\nColor: "+dBase[foundindex[0]][fields[3]])
+                notes.place(relx=0.2,rely=0.2,relwidth=0.6,relheight=0.5)
                 alprwake.release()
             if(foundmatch[0] == 7):
                 break
@@ -182,3 +180,4 @@ def main():
         exit_buttoncall(thread,window)
 if __name__ == '__main__':
     main()
+    

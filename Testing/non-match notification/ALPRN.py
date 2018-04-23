@@ -3,7 +3,7 @@ import Tkinter
 import threading
 from threading import Thread
 from openalpr import Alpr
-#from picamera import PiCamera
+from picamera import PiCamera
 import time
 import sys
 import csv
@@ -35,12 +35,12 @@ def dBase_fill():
         dBase.remove(dBase[0])
         
 def Alpr_run():
-    #camera = PiCamera()
-    #camera.resolution = (1920,1080)
+    camera = PiCamera()
+    camera.resolution = (1920,1080)
     
     # TODO: change these depending on platform
-    #alpr = Alpr("us","/home/zib/Senior-Design-ALPR/src/build/config/openalpr.conf","/home/zib/Senior-Design-ALPR/runtime_data")
-    alpr = Alpr("us","/home/smith/workspace/openalpr/src/build/config/openalpr.conf","/home/smith/workspace/openalpr/runtime_data")
+    alpr = Alpr("us","/home/zib/Senior-Design-ALPR/src/build/config/openalpr.conf","/home/zib/Senior-Design-ALPR/runtime_data")
+    #alpr = Alpr("us","/home/smith/workspace/openalpr/src/build/config/openalpr.conf","/home/smith/workspace/openalpr/runtime_data")
     if not alpr.is_loaded():
         print("Error loading OpenALPR")
         foundmatch[0] = 7
@@ -50,9 +50,9 @@ def Alpr_run():
             
     try:
         while True:
-            #camera.capture('/home/zib/plates/image.jpg',format='jpeg',quality=100)
-            #results = alpr.recognize_file("/home/zib/plates/image.jpg")
-            results = alpr.recognize_file("ETALLIC.jpg")
+            camera.capture('/home/zib/plates/image.jpg',format='jpeg',quality=100)
+            results = alpr.recognize_file("/home/zib/plates/image.jpg")
+            #results = alpr.recognize_file("ETALLIC.jpg")
             if foundmatch[0] == 8:
                     alpr.unload()
                     #print "Thead exitted"
@@ -64,9 +64,11 @@ def Alpr_run():
                     sys.exit()
                 for candidate in plate['candidates']:
                     if candidate['confidence'] >= 85:
-                        lastseenlock.acquire()
-                        foundplate[0] = time.strftime("%X",time.localtime(time.time()))+' Plate: '+candidate['plate']
-                        lastseenlock.release()
+                        #XXX: Plausible spot to implement logging
+                        if (foundplate[0] == 'None'):
+                            lastseenlock.acquire()
+                            foundplate[0] = time.strftime("%X",time.localtime(time.time()))+' Plate: '+candidate['plate']
+                            lastseenlock.release()
                         # hit_index will be used by the gui to fill in the desired info for display when a match occurs
                         # May or may not be useful if separate processes between gui and this
                         hit_index=0
@@ -180,8 +182,11 @@ def main():
         # This is the gui loop
         while True:
             if(LastSeenUpdate[0] == 1):
+                #XXX: Plausible spot to implement logging
                 lastseenlock.acquire()
-                LastSeen.set(foundplate[0])
+                if(foundplate[0] != 'None'):
+                    LastSeen.set(foundplate[0])
+                    foundplate[0] = 'None'
                 lastseenlock.release()
                 LastSeenUpdate[0] = 0
                 window.after(5000, ch_arr_variable, LastSeenUpdate,0,1)

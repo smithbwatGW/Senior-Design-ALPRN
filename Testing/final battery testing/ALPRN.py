@@ -35,12 +35,12 @@ def dBase_fill():
         dBase.remove(dBase[0])
         
 def Alpr_run():
-    #camera = PiCamera()
-    #camera.resolution = (1920,1080)
+    camera = PiCamera()
+    camera.resolution = (1920,1080)
     
     # TODO: change these depending on platform
-    #alpr = Alpr("us","/home/zib/Senior-Design-ALPR/src/build/config/openalpr.conf","/home/zib/Senior-Design-ALPR/runtime_data")
-    alpr = Alpr("us","/home/smith/workspace/openalpr/src/build/config/openalpr.conf","/home/smith/workspace/openalpr/runtime_data")
+    alpr = Alpr("us","/home/zib/Senior-Design-ALPR/src/build/config/openalpr.conf","/home/zib/Senior-Design-ALPR/runtime_data")
+    #alpr = Alpr("us","/home/smith/workspace/openalpr/src/build/config/openalpr.conf","/home/smith/workspace/openalpr/runtime_data")
     if not alpr.is_loaded():
         print("Error loading OpenALPR")
         foundmatch[0] = 7
@@ -50,9 +50,9 @@ def Alpr_run():
             
     try:
         while True:
-            #camera.capture('/home/zib/plates/image.jpg',format='jpeg',quality=100)
-            #results = alpr.recognize_file("/home/zib/plates/image.jpg")
-            results = alpr.recognize_file("ETALLIC.jpg")
+            camera.capture('/home/zib/plates/image.jpg',format='jpeg',quality=100)
+            results = alpr.recognize_file("/home/zib/plates/image.jpg")
+            #results = alpr.recognize_file("ETALLIC.jpg")
             if foundmatch[0] == 8:
                     alpr.unload()
                     #print "Thead exitted"
@@ -184,6 +184,7 @@ def main():
                 LastSeen.set(foundplate[0])
                 lastseenlock.release()
                 LastSeenUpdate[0] = 0
+                #XXX: Plausible spot to implement logging
                 window.after(5000, ch_arr_variable, LastSeenUpdate,0,1)
             if(foundmatch[0] == 1):
                 alprwake.acquire()

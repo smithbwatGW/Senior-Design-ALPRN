@@ -3,7 +3,7 @@ import Tkinter
 import threading
 from threading import Thread
 from openalpr import Alpr
-from picamera import PiCamera
+#from picamera import PiCamera
 import time
 import sys
 import csv
@@ -12,6 +12,7 @@ import csv
 screenblink = [0]
 foundmatch = [0]
 foundindex = [0]
+foundconfidence = [0]
 foundplate = ['None']
 alprwake = threading.Condition()
 lastseenlock = threading.Condition()
@@ -35,12 +36,12 @@ def dBase_fill():
         dBase.remove(dBase[0])
         
 def Alpr_run():
-    camera = PiCamera()
-    camera.resolution = (1920,1080)
+    #camera = PiCamera()
+    #camera.resolution = (1920,1080)
     
     # TODO: change these depending on platform
-    alpr = Alpr("us","/home/zib/Senior-Design-ALPR/src/build/config/openalpr.conf","/home/zib/Senior-Design-ALPR/runtime_data")
-    #alpr = Alpr("us","/home/blake/workspace/openalpr/src/build/config/openalpr.conf","/home/blake/workspace/openalpr/runtime_data")
+    #alpr = Alpr("us","/home/zib/Senior-Design-ALPR/src/build/config/openalpr.conf","/home/zib/Senior-Design-ALPR/runtime_data")
+    alpr = Alpr("us","/home/blake/workspace/openalpr/src/build/config/openalpr.conf","/home/blake/workspace/openalpr/runtime_data")
     if not alpr.is_loaded():
         print("Error loading OpenALPR")
         foundmatch[0] = 7
@@ -50,9 +51,9 @@ def Alpr_run():
             
     try:
         while True:
-            camera.capture('/home/zib/plates/image.jpg',format='jpeg',quality=100)
-            results = alpr.recognize_file("/home/zib/plates/image.jpg")
-            #results = alpr.recognize_file("ETALLIC.jpg")
+            #camera.capture('/home/zib/plates/image.jpg',format='jpeg',quality=100)
+            #results = alpr.recognize_file("/home/zib/plates/image.jpg")
+            results = alpr.recognize_file("ETALLIC.jpg")
             if foundmatch[0] == 8:
                     alpr.unload()
                     #print "Thead exitted"
@@ -65,10 +66,10 @@ def Alpr_run():
                 for candidate in plate['candidates']:
                     if candidate['confidence'] >= 85:
                         #XXX: Plausible spot to implement logging
+                        lastseenlock.acquire()
                         if (foundplate[0] == 'None'):
-                            lastseenlock.acquire()
                             foundplate[0] = time.strftime("%X",time.localtime(time.time()))+' Plate: '+candidate['plate']
-                            lastseenlock.release()
+                        lastseenlock.release()
                         # hit_index will be used by the gui to fill in the desired info for display when a match occurs
                         # May or may not be useful if separate processes between gui and this
                         hit_index=0
@@ -79,6 +80,7 @@ def Alpr_run():
                                 alprwake.acquire()
                                 foundmatch[0] = 1
                                 foundindex[0] = hit_index
+                                foundconfidence[0] = candidate['confidence']
                                 alprwake.wait() #Sleeps till notified
                                 alprwake.release()
                                 break
@@ -99,7 +101,12 @@ def Alpr_run():
         sys.exit()
 
 def ch_arr_variable(var,elem,value):
-    var[elem] = value;
+    var[elem] = value
+    
+def ch_arr_var_lock(var,elem,value,lock_to_use):
+    lock_to_use.acquire()
+    var[elem] = value
+    lock_to_use.release()
 
 def ch_color(blinky):
     current_color = blinky.cget("background")
@@ -186,16 +193,16 @@ def main():
                 lastseenlock.acquire()
                 if(foundplate[0] != 'None'):
                     LastSeen.set(foundplate[0])
-                    foundplate[0] = 'None'
                 lastseenlock.release()
                 LastSeenUpdate[0] = 0
+                window.after(4900, ch_arr_var_lock, foundplate,0,'None',lastseenlock)
                 window.after(5000, ch_arr_variable, LastSeenUpdate,0,1)
             if(foundmatch[0] == 1):
                 alprwake.acquire()
                 foundmatch[0] = 0
                 screenblink[0] = 1
                 # XXX: Additional database fields must be fleshed out here
-                HeadsUp.set("Match found!\nLicense plate: "+dBase[foundindex[0]][fields[0]]+" from "+dBase[foundindex[0]][fields[1]]+"\nReason for interest:"+platestatus[int(dBase[foundindex[0]][fields[2]])]+"\nMake,Model: "+dBase[foundindex[0]][fields[4]]+" "+dBase[foundindex[0]][fields[5]]+"\nColor: "+dBase[foundindex[0]][fields[3]])
+                HeadsUp.set("Match found!\nLicense plate: "+dBase[foundindex[0]][fields[0]]+" from "+dBase[foundindex[0]][fields[1]]+"\nReason for interest:"+platestatus[int(dBase[foundindex[0]][fields[2]])]+"\nMake,Model: "+dBase[foundindex[0]][fields[4]]+" "+dBase[foundindex[0]][fields[5]]+"\nColor: "+dBase[foundindex[0]][fields[3]]+'\nConfidence: '+str(foundconfidence[0]))
                 notes.place(relx=0.2,rely=0.2,relwidth=0.6,relheight=0.5)
                 alprwake.release()
             if(foundmatch[0] == 7 or foundmatch[0] == 8):

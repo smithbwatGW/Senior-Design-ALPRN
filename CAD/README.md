@@ -3,5 +3,5 @@ This set of CAD files offers a mount for attaching the camera in a forward facin
 https://smarticase.com/products/smartipi-touch
 
 or a couple Amazon links for the two versions:
-http://a.co/deXJC1O
-http://a.co/hzzwO4Z
+- http://a.co/deXJC1O
+- http://a.co/hzzwO4Z
